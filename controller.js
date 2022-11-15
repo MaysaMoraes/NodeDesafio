@@ -25,7 +25,8 @@ app.get('/', function(req, res){
 
 //Inserir um novo cliente
 
-app.post('/cliente', async(req, res)=>{
+app.post('/novo-cliente', async(req, res)=>{
+    console.log(req.body)
     await cliente.create(
         req.body
     ).then(cli =>{
@@ -41,6 +42,7 @@ app.post('/cliente', async(req, res)=>{
         });
     });
 });
+
 
 //Inserir um cartão para um cliente
 
@@ -146,7 +148,7 @@ app.post('/empresa/:id/promocao', async(req,res)=>{
 
 //Inserir uma nova empresa
 
-app.post('/empresa', async(req, res)=>{
+app.post('/nova-empresa', async(req, res)=>{
     await empresa.create(
         req.body
     ).then(emp =>{
@@ -166,7 +168,7 @@ app.post('/empresa', async(req, res)=>{
 
 //Listar todos os clientes
 
-app.get('/clientes', async(req, res)=>{
+app.get('/listar-clientes', async(req, res)=>{
     await cliente.findAll()
     .then(cli =>{
         return res.json({
@@ -251,6 +253,26 @@ app.get('/cartao/:CartaoId/compra/promocao/:PromocaoId', async(req, res)=>{
 });
 
 
+//Listar compras de um cartao
+
+app.get('/cartao/:id/compras/promocao/:PromocaoId', async(req, res)=>{
+    await compra.findAll({
+        where: {CartaoId: req.params.id
+}
+    }).then(compras =>{
+        return res.json({
+            error:false,
+            compras
+         });
+    }).catch(erro=>{
+        return res.status(400).json({
+            error: true,
+            message: "Problema de conexão com a API."
+         });
+     });
+});
+
+
 //Listar uma promoção
 
 app.get('/promocao/:id', async(req, res)=>{
@@ -267,6 +289,25 @@ app.get('/promocao/:id', async(req, res)=>{
          });
      });
 });
+
+//Listar promoção de uma empresa
+
+app.get('/empresa/:id/promocao', async(req, res)=>{
+    await promocao.findAll({
+        where: {EmpresaId: req.params.id}
+    }).then(promo =>{
+        return res.json({
+            error:false,
+            promo
+         });
+    }).catch(erro=>{
+        return res.status(400).json({
+            error: true,
+            message: "Problema de conexão com a API."
+         });
+     });
+});
+
 
 //listar todos as empresas e suas promoções
 
@@ -303,6 +344,23 @@ app.get('/empresa/:id', async(req, res)=>{
      });
 });
 
+//Listar todas as empresas
+
+app.get('/listar-empresas', async(req, res)=>{
+    await empresa.findAll()
+    .then(emp =>{
+        return res.json({
+            error:false,
+            emp
+        });
+    }).catch(erro=>{
+        return res.status(400).json({
+            error: true,
+            message: "Problema de conexão com a API."
+        });
+    });
+});
+
 //Atualizar cliente
 
 app.put('/cliente/:id', async(req, res)=>{
@@ -330,7 +388,7 @@ app.put('/cliente/:id', async(req, res)=>{
   });
 //Atualizar cartão
 
-app.put('/cartao/:id', async(req, res)=>{
+app.put('/editar-cartao/:id', async(req, res)=>{
     const cardcli = {
         id: req.params.id,
         ClienteId: req.body.ClienteId,
@@ -363,7 +421,7 @@ app.put('/cartao/:id', async(req, res)=>{
 
 //Atualizar compra
 
-app.put('/cartao/:CartaoId/compra/promocao/:PromocaoId', async(req, res)=>{
+app.put('/cartao/:CartaoId/atualizarCompra/promocao/:PromocaoId', async(req, res)=>{
     const compras = {
         CartaoId: req.params.CartaoId,
         PromocaoId: req.params.PromocaoId,
@@ -392,11 +450,12 @@ app.put('/cartao/:CartaoId/compra/promocao/:PromocaoId', async(req, res)=>{
              PromocaoId: req.params.PromocaoId
             }),
           
-    }).then(compra =>{
+    }).then(compras =>{
+        console.log(compras)
         return res.json({
             error:false,
             message: "Compra foi alterada com sucesso.",
-            compra
+            compras
          });
     }).catch(erro=>{
         return res.status(400).json({
@@ -408,7 +467,7 @@ app.put('/cartao/:CartaoId/compra/promocao/:PromocaoId', async(req, res)=>{
 
 //Atualizar promoção
 
-app.put('/promocao/:id', async(req, res)=>{
+app.put('/editar-promocao/:id', async(req, res)=>{
     const promo = {
         EmpresaId: req.params.EmpresaId,
         nome: req.body.nome,
